@@ -12,7 +12,7 @@
 #' @return a summary staatistics and plots
 #' @export
 #'
-#' @examples analyze_ehr_data("PATH/TO/data/ehr_sample_data.csv")
+#' @examples analyze_ehr_data(ehr_data)
 
 analyze_ehr_data <- function(ehr_data) {
 

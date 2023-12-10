@@ -1,7 +1,7 @@
 #' Medical Imaging Module
 #'
 #' This module covers techniques for medical imaging analysis, including image
-#' segmentation, object detection, and radiological image interpretation.
+#' segmentation.
 #'
 #' @author Khawla Aghzawi
 #' @keywords healthcare data medical imaging analysis
@@ -86,104 +86,3 @@ perform_image_segmentation <- function(image) {
   # Return the segmented image
   return(segmented_image)
 }
-
-#' Perform Object Detection on Breast Ultrasound Images
-#'
-#' This function facilitates object detection on breast ultrasound images for the task
-#' of identifying tumors. It leverages the \code{imager} package for image processing
-#' and \code{keras} for deep learning model creation.
-#'
-#' @param dataset_path Path to the directory containing breast ultrasound images.
-#' @param dimensions Dimensions to which the images will be resized (default is c(256, 256)).
-#' @param test_split Fraction of images for testing (default is 0.2).
-#' @param validation_split Fraction of images for validation (default is 0.1).
-#' @param epochs Number of training epochs for the model (default is 20).
-#' @param batch_size Batch size used during model training (default is 8).
-#' @param threshold Probability threshold for image segmentation (default is 0.8).
-#'
-#' @return A list containing the results of object detection on test images.
-#'
-#' @examples
-#' dataset_path <- "C:/Users/User/Downloads/Dataset_BUSI_with_GT"
-#' detection_results <- perform_object_detection(dataset_path, 20)
-#'
-#' @seealso
-#' \code{\link{imager}} package for image processing.
-#' \code{\link{keras}} package for deep learning model creation.
-#'
-#' @export
-#'
-perform_object_detection <- function(dataset_path, subset_size = NULL, dimensions = c(256, 256), test_split = 0.2, validation_split = 0.1, epochs = 20, batch_size = 8, threshold = 0.8) {
-
-  all_files <- list.files(dataset_path, full.names = TRUE, recursive = TRUE)
-
-  # Take a subset of files for demonstration
-  if (!is.null(subset_size)) {
-    all_files <- sample(all_files, size = subset_size)
-    }
-
-  img <- vector("list", length = length(all_files))
-
-  for (i in seq_along(all_files)) {
-    img[i] <- imager::load.image(all_files[i])
-    if (i %% batch_size == 0) {
-      message("Loaded ", i, " images out of ", length(all_files))
-      }
-  }
-
-  # Remove images with multiple masks
-  lf <- list.files(dataset_path, full.names = TRUE, recursive = TRUE)
-  which_extra_mask_1 <- grep("mask_1", lf)
-  to_remove <- c(sort(c(which_extra_mask_1, which_extra_mask_1 - 1, which_extra_mask_1 - 2)), grep("mask_2", lf))
-  lf_subset <- lf[-to_remove]
-
-  # Load images and masks
-  img <- purrr::map(lf_subset, ~ imager::load.image(.))
-  mask <- purrr::map(lf_subset, ~ imager::load.image(.))
-
-  # Split the data
-  split_tmp <- split_data(n = nrow(img$info), frac_test = test_split, frac_val = validation_split, seed = 123)
-  test_index <- split_tmp$index_test
-  val_index <- split_tmp$index_val
-  train_index <- split_tmp$index_train
-
-  # Convert images and masks to 4D arrays for keras
-  x_train <- imagesToKerasInput(img, type = "image", grayscale = TRUE, subset = train_index)
-  y_train <- imagesToKerasInput(images = mask, type = "mask", subset = train_index)
-  x_test <- imagesToKerasInput(img, type = "image", grayscale = TRUE, subset = test_index)
-  y_test <- imagesToKerasInput(images = mask, type = "mask", subset = test_index)
-
-  x_val <- imagesToKerasInput(img, type = "image", grayscale = TRUE, subset = val_index)
-  y_val <- imagesToKerasInput(images = mask, type = "mask", subset = val_index)
-
-  # Create the model architecture
-  model <- u_net(net_w = dimensions[1], net_h = dimensions[2], grayscale = TRUE, n_class = 1, filters = 32)
-
-  # Model compilation
-  model %>% compile(optimizer = optimizer_adam(), loss = loss_binary_crossentropy, metrics = list(metric_binary_accuracy))
-
-  # Set up the sampling generator
-  sampling_generator <- function(x_data, y_data, batch_size) {
-    function() {
-        rows <- sample(1:nrow(x_data), batch_size, replace = TRUE)
-        list(x_data[rows,,,, drop = FALSE], y_data[rows,,,, drop = FALSE])
-      }
-      }
-
-  # Train the model
-  history <- model %>% fit(x = sampling_generator(x_train, y_train, batch_size = batch_size),
-                             epochs = epochs,
-                             steps_per_epoch = round(nrow(x_train) / batch_size),
-                             validation_data = list(x_val, y_val))
-
-  # Model evaluation
-  scores <- model %>% evaluate(x_test, y_test, verbose = 0)
-  print(scores)
-
-  # Perform image segmentation on test images
-  out <- imageSegmentation(model, x = x_test, threshold = threshold)
-
-  # Return the results or do further processing as needed
-  return(out)
-}
-

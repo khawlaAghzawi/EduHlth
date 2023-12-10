@@ -1,0 +1,152 @@
+---
+title: "Educational Healthcare Package"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+# change the paths according to your installment
+source("C:/Users/User/Desktop/EduHlth/R/ehr_module.R")
+source("C:/Users/User/Desktop/EduHlth/R/clinical_trial_module.R")
+source("C:/Users/User/Desktop/EduHlth/R/predictive_models_module.R")
+source("C:/Users/User/Desktop/EduHlth/R/medical_imaging_module.R")
+```
+
+## EHR Data
+
+Welcome to the first topic of our tutorial, where we will dive into the 
+implementation of the ehr_module.R file, which contains functions for analyzing
+and visualizing Electronic Health Record (EHR) data. 
+This module is a crucial component of our package, designed to provide users 
+with powerful tools for gaining insights from their healthcare datasets.
+
+Let's start by understanding the analyze_ehr_data function. 
+This function is designed to analyze EHR data stored in a CSV file. 
+Here's a breakdown of its usage:
+
+```{r analyze_ehr_data, exercise=TRUE}
+# replace the file path with your local path
+ehr_data <- read.csv("C:/Users/User/Desktop/EduHlth/data/synthetic_ehr_data.csv")
+analyze_ehr_data(ehr_data)
+```
+
+
+It takes a file path to a dataset in CSV format as its parameter and performs a 
+series of analyses, including checking for required columns, reading the dataset,
+displaying the number of observations, and providing summary statistics.
+
+
+The second helper function in this module is visualize_ehr_data. 
+It is dedicated to creating visualizations that help users explore the 
+relationships between age and diseases in their EHR dataset. The preprocessed
+EHR data is its input.
+It performs checks for required columns, missing values, and the uniqueness of
+values in the Diagnosis column before generating various plots, including 
+histograms, bar charts, and scatter plots, to visualize the distribution of age
+and its relationship with gender and diagnosis.
+
+```{r visualize_ehr_data, exercise=TRUE}
+ehr_data <- read.csv("C:/Users/User/Desktop/EduHlth/data/synthetic_ehr_data.csv")
+visualize_ehr_data(ehr_data)
+```
+
+## Clinical Trial
+
+Efficient functions for processing clinical trial data and getting an insight 
+are `load_clinical_trial_data`, `analyze_clinical_trial_data` and `preprocess_clinical_trial_data`.
+
+```{r load_preprocess_and_analyze_clinical_trial_data, exercise=TRUE}
+# replace the file path with your local path
+clinical_trial_data <- load_clinical_trial_data("C:/Users/User/Desktop/EduHlth/data/clinical_trial_data.csv")
+clinical_trial_data <- preprocess_clinical_trial_data(clinical_trial_data)
+analyze_clinical_trial_data(clinical_trial_data)
+```
+
+
+```{r perform_hypothesis_test, exercise=TRUE}
+clinical_trial_data <- load_clinical_trial_data("C:/Users/User/Desktop/EduHlth/data/clinical_trial_data.csv")
+clinical_trial_data <- preprocess_clinical_trial_data(clinical_trial_data)
+perform_hypothesis_test(clinical_trial_data)
+```
+
+We can interpret the outcome as follows: 
+With a p-value of 0.7127, there is insufficient evidence to reject the null 
+hypothesis of independence between the variables. In other words, based on the
+provided data and the chosen significance level (usually 0.05), we do not have
+statistically significant evidence to conclude that there is a relationship 
+between the two categorical variables.
+
+The last function in this module is about visualizing the clinical trial data:
+
+```{r visualize_clinical_trial_data, exercise=TRUE}
+clinical_trial_data <- load_clinical_trial_data("C:/Users/User/Desktop/EduHlth/data/clinical_trial_data.csv")
+clinical_trial_data <- preprocess_clinical_trial_data(clinical_trial_data)
+visualize_clinical_trial_data(clinical_trial_data)
+```
+
+
+## Predictive Models
+
+The functions in this module provide a framework for building, evaluating, and
+utilizing predictive models in the context of healthcare data, particularly for
+predicting patient outcomes. The following example usage demonstrates how these functions 
+can be applied in a real-world scenario.
+
+```{r predictive_models_functions, exercise=TRUE}
+# reading datasets
+training_data <- read.csv("C:/Users/User/Desktop/EduHlth/data/synthetic_training_data.csv")
+testing_data <- read.csv("C:/Users/User/Desktop/EduHlth/data/synthetic_test_data.csv")
+new_data <- read.csv("C:/Users/User/Desktop/EduHlth/data/synthetic_new_data.csv")
+
+# Build predictive model
+trained_model <- build_predictive_model(training_data)
+print("Trained Predictive Model:")
+print(trained_model)
+
+# Evaluate the model
+evaluation_result <- evaluate_predictive_model(trained_model, testing_data)
+print("Evaluation Result (RMSE):")
+print(evaluation_result)
+
+# Make predictions
+predictions <- make_predictions(trained_model, new_data)
+print("Predictions:")
+print(predictions)
+```
+
+Interpretation of this example: 
+- The linear regression model was trained on the training data and evaluated on
+the testing data.
+- The RMSE value in the training phase is 16.41463, suggesting the average 
+prediction error is around this value.
+- After evaluating on the testing data, the RMSE is 15.72453, indicating the 
+model's performance on unseen data.
+- Predictions for new data points are provided. For instance, the model predicts
+outcomes for data points 1 to 5.
+
+
+## Medical Imaging
+
+This module provides an overview of loading, preprocessing, segmentation, and 
+object detection using the provided functions.
+
+```{r image_segmentation, exercise=TRUE}
+# loading medical imaging data
+path1 <- "C:/Users/User/Desktop/EduHlth/data/synthetic_xray_image.png"
+medical_imaging_data <- load_medical_imaging_data(path1)
+ 
+preprocess_medical_imaging_data(medical_imaging_data)     
+
+# simple thresholding of value 0.5 for demonstration purposes. Edit it according to your needs
+perform_image_segmentation(path1)
+```
+
+The image segmentation process was successful, and the result is considered as TRUE.
+In this case, a simple thresholding operation was performed, and pixels with 
+values greater than 0.5 were likely considered part of one segment, while those 
+with values less than or equal to 0.5 were considered part of another segment.

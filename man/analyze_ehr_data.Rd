@@ -16,7 +16,7 @@ a summary staatistics and plots
 This module focuses on analyzing and visualizing EHR data.
 }
 \examples{
-analyze_ehr_data("PATH/TO/data/ehr_sample_data.csv")
+analyze_ehr_data(ehr_data)
 }
 \author{
 Khawla Aghzawi
