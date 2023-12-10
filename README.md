@@ -1,6 +1,6 @@
 **Overview**
 
-The EducationalHealthcareRPackage is a comprehensive educational resource designed to empower data science students and young professionals in the healthcare data analysis field. 
+The EduHlth package is a comprehensive educational resource designed to empower data science students and young professionals in the healthcare data analysis field. 
 This package focuses on teaching R programming for healthcare data analysis, covering real healthcare datasets, predictive modeling, and effective data visualization techniques.
 
 
